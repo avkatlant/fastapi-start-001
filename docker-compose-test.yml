@@ -1,0 +1,39 @@
+version: "3.9"
+
+services:
+
+  db_test:
+    container_name: "db_test"
+    image: postgres:14.1-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres_test
+      - POSTGRES_PASSWORD=postgres_test
+      - POSTGRES_DB=postgres_test
+    ports:
+      - "5433:5432"
+    networks:
+      - net_test
+
+  fastapi_test:
+    container_name: fastapi_test
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    environment:
+      - TZ=Etc/UTC
+    env_file:
+      - .env_test
+    ports:
+      - "8001:8000"
+    volumes:
+      - .:/usr/src/app/
+    command: bash -c "uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload"
+    depends_on:
+      - db_test
+    networks:
+      - net_test
+
+networks:
+  net_test:
+    driver: bridge

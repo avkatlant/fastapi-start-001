@@ -1,0 +1,25 @@
+version: "3.9"
+
+services:
+
+  fastapi:
+    container_name: fastapi
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    environment:
+      - TZ=Etc/UTC
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app/
+    command: "gunicorn -c src/gunicorn.conf.py main:app"
+    restart: unless-stopped
+    networks:
+      - custom
+
+networks:
+  custom:
+    driver: bridge
